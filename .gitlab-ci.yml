@@ -1,0 +1,47 @@
+image: docker:stable
+
+stages:
+  - build
+  #- deploy_dev
+  - deploy_prod
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
+
+build:
+  stage: build
+  script:
+    - docker build
+      --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      --tag $CI_REGISTRY_IMAGE:latest
+      .
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
+
+#deploy_dev:
+#  stage: deploy_dev
+#  before_script: 
+#    - mkdir -p ~/.ssh     
+#    - echo -e "$SERVER_DEV_KEY" > ~/.ssh/id_rsa     
+#    - chmod 600 ~/.ssh/id_rsa     
+#    - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config' 
+
+#  script:
+#    - ssh -p 31022 deployer@$SERVER_DEV_IP "/app/$CI_PROJECT_NAME/deploy.sh --projectName $CI_PROJECT_NAME --user $DOCKER_REPO_LOGIN --token $DOCKER_REPO_TOKEN --tag $CI_COMMIT_SHA"
+
+deploy_prod:
+  stage: deploy_prod
+  before_script:
+    - mkdir -p ~/.ssh
+    - echo -e "$SERVER_PROD_KEY" > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - 'echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+
+  script:
+    - ssh -p 31022 deployer@$SERVER_PROD_IP "/app/$CI_PROJECT_NAME/deploy.sh --projectName $CI_PROJECT_NAME --user $DOCKER_REPO_LOGIN --token $DOCKER_REPO_TOKEN --tag $CI_COMMIT_SHA"
+  only:
+    - main
+  #only:
+  #  - tags

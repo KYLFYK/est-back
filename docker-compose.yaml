@@ -1,0 +1,30 @@
+version: '3.7'
+
+networks:
+  marketplace:
+    name: marketplace
+services:
+  main:
+    image: marketplace-back:latest
+    container_name: marketplace-back
+    networks:
+      - marketplace
+    restart: always
+    volumes:
+      - .prod.env:/app/.prod.env:ro
+      - ./CA.pem:/app/CA.pem:ro
+    env_file:
+      - .prod.env
+    ports:
+      - 3001:8008
+#  postgres:
+#    image: postgres:12.5
+#    container_name: test-db
+#    networks:
+#      - webnet
+#    environment:
+#      - POSTGRES_PASSWORD=postgres
+#      - POSTGRES_DB=test-db
+#    restart: always
+#    ports:
+#      - 5432:5432

@@ -1,0 +1,13 @@
+env
+dist
+node_modules
+CA.pem
+docker-compose.yaml
+Dockerfile
+README.md
+yarn.lock
+.dockerignore
+.git
+.gitignore
+.gitlab-ci.yml
+.prod.env
